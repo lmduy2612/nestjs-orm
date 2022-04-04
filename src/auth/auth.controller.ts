@@ -8,13 +8,15 @@ import {
   Request,
   Response,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from '../models/users/dto/CreateUser.dto';
 import { UsersService } from '../models/users/users.service';
 import { AuthService } from './auth.service';
 import { AuthenticationGuard } from './guards/auth.guard';
-import { LocalAuthGuard } from './guards/local.guard';
 import { UserEntity } from '../models/users/serializers/user.serializer';
+import { LoginUserDto } from '../models/users/dto/LoginUser.dto';
+import { ApiOkResponse } from '@nestjs/swagger';
 
 @Controller()
 export class AuthController {
@@ -24,7 +26,8 @@ export class AuthController {
   ) {}
 
   @Post('/register')
-  async registerUser(@Body() input: CreateUserDto) {
+  @ApiOkResponse({ description: 'Register user' })
+  async register(@Body(ValidationPipe) input: CreateUserDto) {
     const check = await this.validate(input.email);
     if (!check) {
       throw new HttpException(
@@ -32,25 +35,34 @@ export class AuthController {
         HttpStatus.BAD_REQUEST,
       );
     }
-
     input.password = await this.authService.hashPassword(input.password);
     return this.userService.create(input);
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('/login')
-  async login(@Request() request): Promise<any> {
-    return this.authService.login(request.user);
+  @ApiOkResponse({ description: 'Login' })
+  async login(@Body(ValidationPipe) input: LoginUserDto): Promise<any> {
+    const { email, password } = input;
+    const user = await this.authService.authentication(email, password);
+    if (!user) {
+      throw new HttpException(
+        { message: 'Username & email not wrong' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return this.authService.login(user);
   }
 
   @UseGuards(AuthenticationGuard)
-  @Get('current-user')
+  @Get('/me')
+  @ApiOkResponse({ description: 'Get user info' })
   async getUserLoggedIn(@Request() request): Promise<UserEntity> {
     return this.userService.findById(request.user.id);
   }
 
   @UseGuards(AuthenticationGuard)
   @Post('/logout')
+  @ApiOkResponse({ description: 'Logout' })
   async getUserLogout(@Response() response): Promise<Response> {
     response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
     response.clearCookie('access_token');

@@ -14,17 +14,6 @@ export class AuthService {
     private userService: UsersService,
   ) {}
 
-  async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 12);
-  }
-
-  async comparePassword(
-    password: string,
-    storePasswordHash: string,
-  ): Promise<any> {
-    return await bcrypt.compare(password, storePasswordHash);
-  }
-
   async authentication(email: string, password: string): Promise<any> {
     const user = await this.userService.getUserByEmail(email);
     const check = await this.comparePassword(password, user.password);
@@ -36,8 +25,15 @@ export class AuthService {
     return user;
   }
 
-  public getCookieForLogOut() {
-    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 12);
+  }
+
+  async comparePassword(
+    password: string,
+    storePasswordHash: string,
+  ): Promise<any> {
+    return await bcrypt.compare(password, storePasswordHash);
   }
 
   async login(user: UserEntity) {
@@ -53,5 +49,9 @@ export class AuthService {
       token: this.jwtService.sign(payload),
       user,
     };
+  }
+
+  public getCookieForLogOut() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
 }
