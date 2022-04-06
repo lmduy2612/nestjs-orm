@@ -6,8 +6,6 @@ import { UsersRepository } from '../models/users/users.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../models/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
-import { JsonWebTokenStrategy } from './strategies/jwt-strategy';
-import { LocalStrategy } from './strategies/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { EXPIRES_TIME, JWT_SECRET_KEY } from '../config/constants';
 
@@ -21,7 +19,7 @@ import { EXPIRES_TIME, JWT_SECRET_KEY } from '../config/constants';
       signOptions: { expiresIn: EXPIRES_TIME },
     }),
   ],
-  providers: [AuthService, UsersService, LocalStrategy, JsonWebTokenStrategy],
+  providers: [AuthService, UsersService],
   controllers: [AuthController],
 })
 export class AuthModule {}
