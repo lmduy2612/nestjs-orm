@@ -69,8 +69,6 @@ export class UserConversationController {
       userConversation,
       inputs.message_id,
     );
-    console.log(result);
-    
     return result;
   }
 

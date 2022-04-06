@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserConversationRepository } from './user-conversation.repository';
 import { UserConversationEntity } from './serializers/user-conversation.serializer';
 import { UserConversation } from './entities/user-conversation.entity';
-import { ConversationEntity } from '../conversations/serializers/conversation.serializer';
 
 @Injectable()
 export class UserConversationService {

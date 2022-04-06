@@ -1,0 +1,16 @@
+version: '3.3'
+
+services:
+  backend:
+    container_name: nestjs_orm
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    networks:
+      - nesjs-network
+    restart: unless-stopped
+
+networks:
+  nesjs-network:
