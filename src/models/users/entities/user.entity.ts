@@ -6,16 +6,11 @@ import {
   UpdateDateColumn,
   BeforeInsert,
   Column,
-  OneToMany,
-  ManyToMany,
-  JoinTable,
-  OneToOne,
+  // OneToMany,
+  // ManyToMany,
+  // JoinTable,
+  // OneToOne,
 } from 'typeorm';
-import { Message } from '../../messages/entities/message.entity';
-import { Conversation } from '../../conversations/entities/conversation.entity';
-import { Profile } from '../../profiles/entities/profile.entity';
-import { Information } from '../../information/entities/information.entity';
-import { UserConversation } from '../../user_conversation/entities/user-conversation.entity';
 
 @Entity({ name: 'users' })
 export class User implements IUser {
@@ -42,28 +37,17 @@ export class User implements IUser {
     this.email = this.email.toLowerCase();
   }
 
-  @OneToOne(() => Profile, (profile) => profile.user)
-  profile: Profile;
-
-  @OneToMany(
-    () => UserConversation,
-    (userConversation) => userConversation.user,
-  )
-  userConversation?: UserConversation[];
-
-  @OneToMany(() => Message, (message) => message.user)
-  messages?: Message[];
-
-  @OneToMany(() => Information, (information) => information.user, {
-    eager: true,
-  })
-  information?: Information[];
-
-  @ManyToMany(() => Conversation, (conversations) => conversations.users)
-  @JoinTable({
-    name: 'user_conversation',
-    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'conversation_id' },
-  })
-  conversations: Conversation[];
+  // @OneToOne(() => Profile, (profile) => profile.user)
+  // profile: Profile;
+  //
+  // @OneToMany(() => Message, (message) => message.user)
+  // messages?: Message[];
+  //
+  // @ManyToMany(() => Conversation, (conversations) => conversations.users)
+  // @JoinTable({
+  //   name: 'user_conversation',
+  //   joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  //   inverseJoinColumn: { name: 'conversation_id' },
+  // })
+  // conversations: Conversation[];
 }

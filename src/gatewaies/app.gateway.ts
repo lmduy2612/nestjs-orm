@@ -12,13 +12,7 @@ import { WsGuard } from './guards/validation';
 import { MessagesInterface } from './interfaces/messages.interface';
 import { UsersService } from '../models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { InformationService } from '../models/information/information.service';
-import { TypeInformation } from '../models/information/interfaces/information.interface';
-import { SaveInformationDto } from '../models/information/dto/save.dto';
 import { UserEntity } from '../models/users/serializers/user.serializer';
-import { ConversationsService } from '../models/conversations/conversations.service';
-import { MessagesService } from '../models/messages/messages.service';
-import { UserConversationService } from '../models/user_conversation/user-conversation.service';
 
 @UseGuards(WsGuard)
 @WebSocketGateway(3006, { cors: true })
@@ -29,10 +23,6 @@ export class AppGateway
   private logger: Logger = new Logger('MessageGateway');
   constructor(
     private userService: UsersService,
-    private conversationService: ConversationsService,
-    private informationService: InformationService,
-    private messageService: MessagesService,
-    private userConversationService: UserConversationService,
     private jwtService: JwtService,
   ) {}
 
@@ -42,82 +32,14 @@ export class AppGateway
 
   async handleConnection(client: Socket) {
     this.logger.log(client.id, 'Connected..............................');
-    const user: UserEntity = await this.getDataUserFromToken(client);
-
-    const information: SaveInformationDto = {
-      user_id: user.id,
-      type: TypeInformation.socket_id,
-      status: false,
-      value: client.id,
-    };
-
-    await this.informationService.create(information);
-    // need handle insert socketId to information table
-    // client.on('room', (room) => {
-    //   client.join(room);
-    // });
   }
 
   async handleDisconnect(client: Socket) {
-    const user = await this.getDataUserFromToken(client);
-    await this.informationService.deleteByValue(user.id, client.id);
-
-    // need handle remove socketId to information table
-    this.logger.log(client.id, 'Disconnect');
+    this.logger.log(client.id, 'Disconnect..............................');
   }
 
   @SubscribeMessage('messages')
   async messages(client: Socket, payload: MessagesInterface) {
-    const conversation = await this.conversationService.findById(
-      payload.conversation_id,
-      ['users'],
-    );
-
-    const userId = [];
-    conversation.users.map((user) => {
-      userId.push(user.id);
-
-      return user;
-    });
-
-    const dataSocketId = await this.informationService.findSocketId(userId);
-
-    const message = await this.messageService.create({
-      user_id: payload.user_id,
-      status: false,
-      message: payload.message,
-      conversation_id: payload.conversation_id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    const dataUserConversation =
-      await this.userConversationService.findDataUserConversation(
-        message.user_id,
-        message.conversation_id,
-      );
-
-    const messageId =
-      typeof message.id === 'string' ? parseInt(message.id) : message.id;
-
-    await this.userConversationService.updateLastMessageId(
-      dataUserConversation,
-      messageId,
-    );
-
-    const emit = this.server;
-    dataSocketId.map((value) => {
-      emit.to(value.value).emit('message-received', {
-        id: message.id,
-        message: message.message,
-        conversation_id: message.conversation_id,
-        user_id: message.user_id,
-        status: message.status,
-        createdAt: message.createdAt,
-        updatedAt: message.updatedAt,
-      });
-    });
-
     //https://stackoverflow.com/questions/35680565/sending-message-to-specific-client-in-socket-io
     // // sending to sender-client only
     // socket.emit('message', "this is a test");
@@ -142,7 +64,6 @@ export class AppGateway
     //
     // // sending to individual socketid
     // socket.broadcast.to(socketid).emit('message', 'for your eyes only');
-
     //https://stackoverflow.com/questions/50602359/how-to-send-multiple-client-using-socket-id-that-are-connected-to-socket-nodejs
     // Add socket to room
     // socket.join('some room');
