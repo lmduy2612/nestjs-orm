@@ -11,13 +11,13 @@ import { EXPIRES_TIME, JWT_SECRET_KEY } from '../config/constants';
 
 @Module({
   imports: [
-    UsersModule,
     TypeOrmModule.forFeature([UsersRepository]),
     PassportModule,
     JwtModule.register({
       secret: JWT_SECRET_KEY,
       signOptions: { expiresIn: EXPIRES_TIME },
     }),
+    UsersModule,
   ],
   providers: [AuthService, UsersService],
   controllers: [AuthController],

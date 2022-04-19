@@ -51,9 +51,7 @@ export class ModelRepository<T, K extends ModelEntity> extends Repository<T> {
     inputs: DeepPartial<T>,
     relations: string[] = [],
   ): Promise<K> {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return await this.update(entity.id, inputs)
+    return await this.save({ ...inputs, id: entity.id })
       .then(async (entity) => {
         return await this.getEntityById((entity as any).id, relations);
       })

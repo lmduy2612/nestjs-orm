@@ -15,6 +15,7 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/CreateUser.dto';
 import { AuthenticationGuard } from '../../auth/guards/auth.guard';
+import * as bcrypt from 'bcrypt';
 
 @UseGuards(AuthenticationGuard)
 @Controller('/users')
@@ -35,6 +36,14 @@ export class UsersController {
 
   @Post('/')
   async create(@Body() inputs: CreateUserDto): Promise<UserEntity> {
+    const check = await this.validate(inputs.email);
+    if (!check) {
+      throw new HttpException(
+        { message: 'User already exists' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    inputs.password = await this.hashPassword(inputs.password);
     return await this.usersService.create(inputs);
   }
 
@@ -55,6 +64,19 @@ export class UsersController {
   throwUserNotFound(user: User | UserEntity) {
     if (!user) {
       throw new HttpException("User don't exists", HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 12);
+  }
+
+  async validate(email: string) {
+    try {
+      const users = await this.usersService.geUsersByEmail(email);
+      return users.length <= 0;
+    } catch (e) {
+      return false;
     }
   }
 }

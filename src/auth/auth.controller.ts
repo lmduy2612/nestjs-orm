@@ -10,12 +10,12 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { CreateUserDto } from '../models/users/dto/CreateUser.dto';
 import { UsersService } from '../models/users/users.service';
 import { AuthService } from './auth.service';
 import { AuthenticationGuard } from './guards/auth.guard';
 import { UserEntity } from '../models/users/serializers/user.serializer';
 import { LoginUserDto } from '../models/users/dto/LoginUser.dto';
+import { RegisterUserDto } from '../models/users/dto/RegisterUser.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
 
 @Controller()
@@ -27,7 +27,7 @@ export class AuthController {
 
   @Post('/register')
   @ApiOkResponse({ description: 'Register user' })
-  async register(@Body(ValidationPipe) input: CreateUserDto) {
+  async register(@Body(ValidationPipe) input: RegisterUserDto) {
     const check = await this.validate(input.email);
     if (!check) {
       throw new HttpException(
