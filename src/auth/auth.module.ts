@@ -4,7 +4,6 @@ import { AuthController } from './auth.controller';
 import { UsersService } from '../models/users/users.service';
 import { UsersRepository } from '../models/users/users.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from '../models/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { EXPIRES_TIME, JWT_SECRET_KEY } from '../config/constants';
@@ -17,7 +16,6 @@ import { EXPIRES_TIME, JWT_SECRET_KEY } from '../config/constants';
       secret: JWT_SECRET_KEY,
       signOptions: { expiresIn: EXPIRES_TIME },
     }),
-    UsersModule,
   ],
   providers: [AuthService, UsersService],
   controllers: [AuthController],

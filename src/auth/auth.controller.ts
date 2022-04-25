@@ -13,7 +13,7 @@ import {
 import { UsersService } from '../models/users/users.service';
 import { AuthService } from './auth.service';
 import { AuthenticationGuard } from './guards/auth.guard';
-import { UserEntity } from '../models/users/serializers/user.serializer';
+import { UserSerializer } from '../models/users/serializers/user.serializer';
 import { LoginUserDto } from '../models/users/dto/LoginUser.dto';
 import { RegisterUserDto } from '../models/users/dto/RegisterUser.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
@@ -27,7 +27,9 @@ export class AuthController {
 
   @Post('/register')
   @ApiOkResponse({ description: 'Register user' })
-  async register(@Body(ValidationPipe) input: RegisterUserDto) {
+  async register(
+    @Body(ValidationPipe) input: RegisterUserDto,
+  ): Promise<UserSerializer> {
     const check = await this.validate(input.email);
     if (!check) {
       throw new HttpException(
@@ -56,7 +58,7 @@ export class AuthController {
   @UseGuards(AuthenticationGuard)
   @Get('/me')
   @ApiOkResponse({ description: 'Get user info' })
-  async getUserLoggedIn(@Request() request): Promise<UserEntity> {
+  async getUserLoggedIn(@Request() request): Promise<UserSerializer> {
     return this.userService.findById(request.user.id);
   }
 

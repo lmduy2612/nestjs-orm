@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersRepository } from './users.repository';
-import { UserEntity } from './serializers/user.serializer';
+import { UserSerializer } from './serializers/user.serializer';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/CreateUser.dto';
 
@@ -14,7 +14,7 @@ export class UsersService {
   async findAll(
     relations: string[] = [],
     throwsException = false,
-  ): Promise<UserEntity[]> {
+  ): Promise<UserSerializer[]> {
     return await this.usersRepository.getAllEntity(relations, throwsException);
   }
 
@@ -22,7 +22,7 @@ export class UsersService {
     id: number,
     relations: string[] = [],
     throwsException = false,
-  ): Promise<UserEntity> {
+  ): Promise<UserSerializer> {
     return await this.usersRepository.getEntityById(
       id,
       relations,
@@ -30,19 +30,19 @@ export class UsersService {
     );
   }
 
-  async geUsersByEmail(email: string): Promise<UserEntity[]> {
+  async geUsersByEmail(email: string): Promise<UserSerializer[]> {
     return await this.usersRepository.getUsersByEmail(email);
   }
 
-  async getUserByEmail(email: string): Promise<UserEntity> {
+  async getUserByEmail(email: string): Promise<UserSerializer> {
     return await this.usersRepository.getUserByEmail(email);
   }
 
-  async create(inputs: CreateUserDto): Promise<UserEntity> {
+  async create(inputs: CreateUserDto): Promise<UserSerializer> {
     return await this.usersRepository.createEntity(inputs);
   }
 
-  async update(user: UserEntity, inputs: User): Promise<UserEntity> {
+  async update(user: UserSerializer, inputs: User): Promise<UserSerializer> {
     return await this.usersRepository.updateEntity(user, inputs);
   }
 

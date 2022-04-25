@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'typeorm';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { APP_PORT } from './config/constants';
+import swaggerConfig from './swagger-config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,27 +15,10 @@ async function bootstrap() {
     }),
   );
   app.enableCors();
+
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  const config = new DocumentBuilder()
-    .setTitle('Nestjs Swagger')
-    .setDescription('The nestjs swagger description')
-    .setVersion('1.0')
-    .addTag('v1')
-    .addBearerAuth(
-      {
-        description: `[just text field] Please enter token in following format: Bearer <JWT>`,
-        name: 'Authorization',
-        bearerFormat: 'Bearer',
-        scheme: 'Bearer',
-        type: 'http',
-        in: 'Header',
-      },
-      'access-token',
-    )
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('swagger', app, document);
 
   await app.listen(APP_PORT);

@@ -1,7 +1,7 @@
 import { IUser } from '../interfaces/user.interface';
-import { ModelEntity } from '../../model.serializer';
+import { ModelSerializer } from '../../model.serializer';
 
-export class UserEntity extends ModelEntity implements IUser {
+export class UserSerializer extends ModelSerializer implements IUser {
   id: number;
 
   email: string;

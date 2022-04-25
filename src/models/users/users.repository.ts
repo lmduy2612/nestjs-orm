@@ -1,13 +1,13 @@
 import { EntityRepository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { ModelRepository } from '../model.repository';
-import { UserEntity } from './serializers/user.serializer';
+import { UserSerializer } from './serializers/user.serializer';
 import { plainToClass, classToPlain } from 'class-transformer';
 import { NotFoundException } from '@nestjs/common';
 
 @EntityRepository(User)
-export class UsersRepository extends ModelRepository<User, UserEntity> {
-  async getUsersByEmail(email: string): Promise<UserEntity[]> {
+export class UsersRepository extends ModelRepository<User, UserSerializer> {
+  async getUsersByEmail(email: string): Promise<UserSerializer[]> {
     return this.find({
       where: {
         email: email,
@@ -21,7 +21,7 @@ export class UsersRepository extends ModelRepository<User, UserEntity> {
     });
   }
 
-  async getUserByEmail(email: string): Promise<UserEntity> {
+  async getUserByEmail(email: string): Promise<UserSerializer> {
     return await this.findOne({
       where: { email: email },
     }).then((entity) => {
@@ -33,17 +33,16 @@ export class UsersRepository extends ModelRepository<User, UserEntity> {
     });
   }
 
-  transform(model: User): UserEntity {
+  transform(model: User): UserSerializer {
     const transformOptions = {};
-
     return plainToClass(
-      UserEntity,
+      UserSerializer,
       classToPlain(model, transformOptions),
       transformOptions,
     );
   }
 
-  transformMany(models: User[]): UserEntity[] {
+  transformMany(models: User[]): UserSerializer[] {
     return models.map((model) => this.transform(model));
   }
 }

@@ -1,4 +1,4 @@
-import { UserEntity } from '../../models/users/serializers/user.serializer';
+import { UserSerializer } from '../../models/users/serializers/user.serializer';
 
 export interface MessagesInterface {
   message: string;
@@ -6,5 +6,5 @@ export interface MessagesInterface {
   user_id: number;
   createdAt: Date | string | null;
   updatedAt: Date | string | null;
-  user: UserEntity;
+  user: UserSerializer;
 }

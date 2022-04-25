@@ -12,7 +12,7 @@ import { WsGuard } from './guards/validation';
 import { MessagesInterface } from './interfaces/messages.interface';
 import { UsersService } from '../models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { UserEntity } from '../models/users/serializers/user.serializer';
+import { UserSerializer } from '../models/users/serializers/user.serializer';
 
 @UseGuards(WsGuard)
 @WebSocketGateway(3006, { cors: true })
@@ -90,7 +90,7 @@ export class AppGateway
     //     io.sockets.socket(socketId).emit('message', 'this is a test');
   }
 
-  async getDataUserFromToken(client: Socket): Promise<UserEntity> {
+  async getDataUserFromToken(client: Socket): Promise<UserSerializer> {
     const authToken: any = client.handshake?.query?.token;
     try {
       const decoded = this.jwtService.verify(authToken);

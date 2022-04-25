@@ -10,7 +10,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { UserEntity } from './serializers/user.serializer';
+import { UserSerializer } from './serializers/user.serializer';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/CreateUser.dto';
@@ -28,14 +28,14 @@ export class UsersController {
   }
 
   @Get('/:id')
-  async getById(@Param() params): Promise<UserEntity> {
+  async getById(@Param() params): Promise<UserSerializer> {
     const user = await this.usersService.findById(params.id, ['messages']);
     this.throwUserNotFound(user);
     return user;
   }
 
   @Post('/')
-  async create(@Body() inputs: CreateUserDto): Promise<UserEntity> {
+  async create(@Body() inputs: CreateUserDto): Promise<UserSerializer> {
     const check = await this.validate(inputs.email);
     if (!check) {
       throw new HttpException(
@@ -48,7 +48,7 @@ export class UsersController {
   }
 
   @Put('/:id')
-  async update(@Param() params, @Body() inputs: User): Promise<UserEntity> {
+  async update(@Param() params, @Body() inputs: User): Promise<UserSerializer> {
     const user = await this.usersService.findById(parseInt(params.id, 0));
     this.throwUserNotFound(user);
     return await this.usersService.update(user, inputs);
@@ -61,7 +61,7 @@ export class UsersController {
     return await this.usersService.deleteById(params.id);
   }
 
-  throwUserNotFound(user: User | UserEntity) {
+  throwUserNotFound(user: User | UserSerializer) {
     if (!user) {
       throw new HttpException("User don't exists", HttpStatus.NOT_FOUND);
     }
@@ -71,7 +71,7 @@ export class UsersController {
     return await bcrypt.hash(password, 12);
   }
 
-  async validate(email: string) {
+  async validate(email: string): Promise<boolean> {
     try {
       const users = await this.usersService.geUsersByEmail(email);
       return users.length <= 0;

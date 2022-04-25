@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserEntity } from '../models/users/serializers/user.serializer';
+import { UserSerializer } from '../models/users/serializers/user.serializer';
 import { JwtService } from '@nestjs/jwt';
 import { AuthPayload } from './interfaces/auth-payload.interface';
 import * as moment from 'moment';
@@ -35,7 +35,7 @@ export class AuthService {
     return await bcrypt.compare(password, storePasswordHash);
   }
 
-  async login(user: UserEntity) {
+  async login(user: UserSerializer) {
     const payload: AuthPayload = {
       name: user.name,
       email: user.email,
