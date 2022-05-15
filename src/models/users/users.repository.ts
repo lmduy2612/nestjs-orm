@@ -2,7 +2,7 @@ import { EntityRepository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { ModelRepository } from '../model.repository';
 import { UserSerializer } from './serializers/user.serializer';
-import { plainToClass, classToPlain } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { NotFoundException } from '@nestjs/common';
 
 @EntityRepository(User)
@@ -35,9 +35,9 @@ export class UsersRepository extends ModelRepository<User, UserSerializer> {
 
   transform(model: User): UserSerializer {
     const transformOptions = {};
-    return plainToClass(
+    return plainToInstance(
       UserSerializer,
-      classToPlain(model, transformOptions),
+      instanceToPlain(model, transformOptions),
       transformOptions,
     );
   }

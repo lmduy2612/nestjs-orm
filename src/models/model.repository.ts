@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { ModelSerializer } from './model.serializer';
 import { DeepPartial, Repository } from 'typeorm';
 
@@ -70,7 +70,7 @@ export class ModelRepository<
   }
 
   transform(model: T, transformOptions = {}): K {
-    return plainToClass(ModelSerializer, model, transformOptions) as K;
+    return plainToInstance(ModelSerializer, model, transformOptions) as K;
   }
 
   transformMany(model: T[], transformOptions = {}): K[] {
