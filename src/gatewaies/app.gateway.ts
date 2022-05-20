@@ -41,7 +41,7 @@ export class AppGateway
   @SubscribeMessage('messages')
   async messages(client: Socket, payload: MessagesInterface) {
     //https://stackoverflow.com/questions/35680565/sending-message-to-specific-client-in-socket-io
-    // // sending to sender-client only
+    // sending to sender-client only
     // socket.emit('message', "this is a test");
     //
     // // sending to all clients, include sender
