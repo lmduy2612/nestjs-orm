@@ -6,7 +6,7 @@ export class DevicesSerializer extends ModelSerializer implements IDevices {
 
   client_id: string;
 
-  users_id: number;
+  user_id: number;
 
   createdAt: Date;
 

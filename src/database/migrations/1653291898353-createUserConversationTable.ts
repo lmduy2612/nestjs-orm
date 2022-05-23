@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class createUserConversationTable1653287683510
+export class createUserConversationTable1653291898353
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -16,7 +16,7 @@ export class createUserConversationTable1653287683510
             generationStrategy: 'increment',
           },
           {
-            name: 'users_id',
+            name: 'user_id',
             type: 'int',
             isNullable: false,
           },

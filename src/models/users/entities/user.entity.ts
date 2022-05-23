@@ -6,11 +6,12 @@ import {
   UpdateDateColumn,
   BeforeInsert,
   Column,
-  // OneToMany,
-  // ManyToMany,
-  // JoinTable,
-  // OneToOne,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
 } from 'typeorm';
+import { Conversation } from '../../conversation/entities/conversation.entity';
+import { Messages } from '../../messages/entities/messages.entity';
 
 @Entity({ name: 'users' })
 export class User implements IUser {
@@ -37,14 +38,14 @@ export class User implements IUser {
     this.email = this.email.toLowerCase();
   }
 
-  // @OneToMany(() => Message, (message) => message.user)
-  // messages?: Message[];
-  //
-  // @ManyToMany(() => Conversation, (conversations) => conversations.users)
-  // @JoinTable({
-  //   name: 'user_conversation',
-  //   joinColumn: { name: 'user_id', referencedColumnName: 'id' },
-  //   inverseJoinColumn: { name: 'conversation_id' },
-  // })
-  // conversations: Conversation[];
+  @OneToMany(() => Messages, (message) => message.user)
+  messages?: Messages[];
+
+  @ManyToMany(() => Conversation, (conversations) => conversations.users)
+  @JoinTable({
+    name: 'users_conversation',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'conversation_id' },
+  })
+  conversations: Conversation[];
 }

@@ -19,7 +19,7 @@ export class createMessageTable1653287255010 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'users_id',
+            name: 'user_id',
             type: 'int',
             isNullable: false,
           },

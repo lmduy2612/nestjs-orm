@@ -19,7 +19,7 @@ export class createDeviceTable1653286508334 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'users_id',
+            name: 'user_id',
             type: 'int',
             isNullable: false,
           },

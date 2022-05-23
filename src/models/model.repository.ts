@@ -21,6 +21,23 @@ export class ModelRepository<
     });
   }
 
+  async getEntityByCondition(
+    condition: any,
+    relations: string[] = [],
+    throwsException = false,
+  ): Promise<K[] | null> {
+    return await this.find({
+      where: condition,
+      relations,
+    }).then((entity) => {
+      if (!entity && throwsException) {
+        return Promise.reject(new NotFoundException('Model not found'));
+      }
+
+      return Promise.resolve(entity ? this.transformMany(entity) : null);
+    });
+  }
+
   async getEntityById(
     id: string | number,
     relations: string[] = [],

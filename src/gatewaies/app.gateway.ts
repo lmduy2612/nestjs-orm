@@ -14,7 +14,8 @@ import { UsersService } from '../models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserSerializer } from '../models/users/serializers/user.serializer';
 import { DevicesService } from '../models/devices/devices.service';
-import { Devices } from "../models/devices/entities/devices.entity";
+import { ConversationService } from '../models/conversation/conversation.service';
+import { MessagesService } from '../models/messages/messages.service';
 
 @UseGuards(WsGuard)
 @WebSocketGateway(3006, { cors: true })
@@ -25,6 +26,8 @@ export class AppGateway
   private logger: Logger = new Logger('MessageGateway');
   constructor(
     private devicesService: DevicesService,
+    private conversationService: ConversationService,
+    private messagesService: MessagesService,
     private userService: UsersService,
     private jwtService: JwtService,
   ) {}
@@ -35,9 +38,10 @@ export class AppGateway
 
   async handleConnection(client: Socket) {
     this.logger.log(client.id, 'Connected..............................');
+    this.logger.log('Create device with user...........................');
     const user = await this.getDataUserFromToken(client);
     const device: any = {
-      users_id: user.id,
+      user_id: user.id,
       client_id: client.id,
     };
     await this.devicesService.create(device);
@@ -45,58 +49,47 @@ export class AppGateway
 
   async handleDisconnect(client: Socket) {
     this.logger.log(client.id, 'Disconnect..............................');
+    this.logger.log('Remove device with user............................');
+    const user = await this.getDataUserFromToken(client);
+    await this.devicesService.deleteBy(user.id, client.id);
   }
 
   @SubscribeMessage('messages')
   async messages(client: Socket, payload: MessagesInterface) {
-    //https://stackoverflow.com/questions/35680565/sending-message-to-specific-client-in-socket-io
-    // sending to sender-client only
-    // socket.emit('message', "this is a test");
-    //
-    // // sending to all clients, include sender
-    // io.emit('message', "this is a test");
-    //
-    // // sending to all clients except sender
-    // socket.broadcast.emit('message', "this is a test");
-    //
-    // // sending to all clients in 'game' room(channel) except sender
-    // socket.broadcast.to('game').emit('message', 'nice game');
-    //
-    // // sending to all clients in 'game' room(channel), include sender
-    // io.in('game').emit('message', 'cool game');
-    //
-    // // sending to sender client, only if they are in 'game' room(channel)
-    // socket.to('game').emit('message', 'enjoy the game');
-    //
-    // // sending to all clients in namespace 'myNamespace', include sender
-    // io.of('myNamespace').emit('message', 'gg');
-    //
-    // // sending to individual socketid
-    // socket.broadcast.to(socketid).emit('message', 'for your eyes only');
-    //https://stackoverflow.com/questions/50602359/how-to-send-multiple-client-using-socket-id-that-are-connected-to-socket-nodejs
-    // Add socket to room
-    // socket.join('some room');
-    //
-    // // Remove socket from room
-    //     socket.leave('some room');
-    //
-    // // Send to current client
-    //     socket.emit('message', 'this is a test');
-    //
-    // // Send to all clients include sender
-    //     io.sockets.emit('message', 'this is a test');
-    //
-    // // Send to all clients except sender
-    //     socket.broadcast.emit('message', 'this is a test');
-    //
-    // // Send to all clients in 'game' room(channel) except sender
-    //     socket.broadcast.to('game').emit('message', 'this is a test');
-    //
-    // // Send to all clients in 'game' room(channel) include sender
-    //     io.sockets.in('game').emit('message', 'this is a test');
-    //
-    // // Send to individual socket id
-    //     io.sockets.socket(socketId).emit('message', 'this is a test');
+    this.logger.log('Listening event [message]..............................');
+    const user = await this.getDataUserFromToken(client);
+
+    // get conversation info
+    const conversation = await this.conversationService.findById(
+      payload.conversation_id,
+      ['users'],
+    );
+
+    // create message with conversation
+    const message = await this.messagesService.create({
+      user_id: user.id,
+      conversation_id: conversation.id,
+      message: payload.message,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    // get list device user of conversation
+    const devices = await this.devicesService.findByCondition({
+      user_id: user.id,
+    });
+    devices.map((device) => {
+      client.to(device.client_id).emit('messages', {
+        id: message.id,
+        message: message.message,
+        conversation_id: message.conversation_id,
+        user_id: message.user_id,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+      });
+    });
+
+    return message;
   }
 
   async getDataUserFromToken(client: Socket): Promise<UserSerializer> {
