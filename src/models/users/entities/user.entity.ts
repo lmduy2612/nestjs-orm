@@ -37,9 +37,6 @@ export class User implements IUser {
     this.email = this.email.toLowerCase();
   }
 
-  // @OneToOne(() => Profile, (profile) => profile.user)
-  // profile: Profile;
-  //
   // @OneToMany(() => Message, (message) => message.user)
   // messages?: Message[];
   //

@@ -13,6 +13,8 @@ import { MessagesInterface } from './interfaces/messages.interface';
 import { UsersService } from '../models/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserSerializer } from '../models/users/serializers/user.serializer';
+import { DevicesService } from '../models/devices/devices.service';
+import { Devices } from "../models/devices/entities/devices.entity";
 
 @UseGuards(WsGuard)
 @WebSocketGateway(3006, { cors: true })
@@ -22,6 +24,7 @@ export class AppGateway
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('MessageGateway');
   constructor(
+    private devicesService: DevicesService,
     private userService: UsersService,
     private jwtService: JwtService,
   ) {}
@@ -32,6 +35,12 @@ export class AppGateway
 
   async handleConnection(client: Socket) {
     this.logger.log(client.id, 'Connected..............................');
+    const user = await this.getDataUserFromToken(client);
+    const device: any = {
+      users_id: user.id,
+      client_id: client.id,
+    };
+    await this.devicesService.create(device);
   }
 
   async handleDisconnect(client: Socket) {
@@ -94,8 +103,7 @@ export class AppGateway
     const authToken: any = client.handshake?.query?.token;
     try {
       const decoded = this.jwtService.verify(authToken);
-
-      return await this.userService.getUserByEmail(decoded.email); // response to function
+      return await this.userService.getUserByEmail(decoded.email);
     } catch (ex) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
