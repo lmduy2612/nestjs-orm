@@ -11,7 +11,7 @@ const config: MysqlConnectionOptions = {
   port: parseInt(process.env.DB_PORT),
   host: process.env.DB_HOST,
   entities: ['dist/models/**/*.entity{.ts,.js}'],
-  synchronize: false,
+  synchronize: true,
   dropSchema: false,
   migrations: ['dist/database/migrations/*.js'],
   cli: {

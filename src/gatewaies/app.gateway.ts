@@ -79,7 +79,7 @@ export class AppGateway
       user_id: user.id,
     });
     devices.map((device) => {
-      this.server.to(device.client_id).emit('messages', {
+      this.server.to(device.client_id).emit('messages-received', {
         id: message.id,
         message: message.message,
         conversation_id: message.conversation_id,
@@ -88,16 +88,6 @@ export class AppGateway
         updatedAt: message.updatedAt,
       });
     });
-
-    // client.emit('messages', {
-    //   id: message.id,
-    //   message: message.message,
-    //   conversation_id: message.conversation_id,
-    //   user_id: message.user_id,
-    //   createdAt: message.createdAt,
-    //   updatedAt: message.updatedAt,
-    // });
-
     return message;
   }
 
